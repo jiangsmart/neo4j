@@ -1,0 +1,67 @@
+CREATE INDEX ON :Person(id)
+CREATE INDEX ON :Book(name)
+// YIELD关键字表示每次导入json数据中的一组数据，即`[...]`中的每一个`{}`, 这里的person.json是系统绝对路径
+CALL apoc.load.json("file:///D:/neo4j-community-3.4.0/import/person.json") YIELD value as person    //这个最好是绝对路径,否则会报错.(重点注意)
+// 需要对book属性进行列表展开，后续建立Person和Book关系的时候，需要用。
+UNWIND person.book as book
+// 创建Person节点
+MERGE (p:Person{id:person.id})
+SET p.name=person.name, p.age=person.age, p.friends=person.friends
+//创建book节点
+MERGE (b:Book{name:book.name})
+SET b.year=book.year
+//建立person->book关系
+MERGE (p)-[:READ]->(b)
+
+
+CREATE INDEX ON :Route(id);
+CREATE INDEX ON :POI(name);
+
+CALL apoc.load.json("file:///home/jiang/routeInfo.json") YIELD value as route
+UNWIND route.des as des
+MERGE (r:Route{id:route._id})
+SET r.description=route.description, r.season=route.season, r.days=route.days
+MERGE (c:City{name:route.des});
+
+// 导入所有节点
+CALL apoc.load.json("file:///home/jiang/routeInfo.json") YIELD value as route
+UNWIND route.trajectory as dayroute
+UNWIND dayroute as poi
+MERGE (p:POI{name:poi.name})
+SET p.lat=poi.lat, p.lon=poi.lng;
+
+// 导入路线关系
+CALL apoc.load.json("file:///home/jiang/youyou6/routeInfo_route.json") YIELD value as route
+UNWIND route.traj as traj
+match (a),(b) where a.name=traj.name1 and b.name=traj.name2
+create (a)-[r:Route{tripline_id:route.id,des:route.des,dur:route.dur,season:route.season,type:route.type,day:traj.day,activity:traj.activity}]->(b)
+
+match (a),(b) where a.name='Wang Hao' and b.name='Xilun' create (a)-[r:owner{strength:'strong',years:'3 years'}]->(b)
+
+# 编号为0的路线
+MATCH p=(n)-[r:Route{tripline_id:0}]->(m) RETURN p
+
+# 最热门的景点
+MATCH (poi1)-[r:Route]-(poi2)
+WITH poi1, count(r) AS routes
+return poi1 order by routes desc limit 3
+
+# 第二天游览大东海的路线
+MATCH (n)-[r:Route]->(m) WHERE r.day=2 AND m.name='大东海'
+WITH DISTINCT r.tripline_id AS rid
+MATCH p=(a)-[r2:Route{tripline_id:rid}]->(b) RETURN p ORDER BY r2.tripline_id,r2.day,r2.activity 
+
+
+// 导入所有节点-服务器
+CALL apoc.load.json("file:///home/jiangxilun/data/graph/routeInfo.json") YIELD value as route
+UNWIND route.trajectory as dayroute
+UNWIND dayroute as poi
+MERGE (p:POI{name:poi.name})
+SET p.lat=poi.lat, p.lon=poi.lng;
+
+
+// 导入路线关系-travel03服务器
+CALL apoc.load.json("file:///home/jiangxilun/data/graph/routeInfo_route.json") YIELD value as route
+UNWIND route.traj as traj
+match (a),(b) where a.name=traj.name1 and b.name=traj.name2
+create (a)-[r:Route{tripline_id:route.id,des:route.des,dur:route.dur,season:route.season,type:route.type,day:traj.day,activity:traj.activity}]->(b)
