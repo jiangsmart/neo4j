@@ -11,8 +11,8 @@ def get_route_string(results):
     last_route_day = 3
     # get results
     for result in results:
-        begin_node = result['a.name'].encode('utf-8')
-        end_node = result['b.name'].encode('utf-8')
+        begin_node = result['a.name']
+        end_node = result['b.name']
         route_day, route_activity, route_id = result['r.day'], result['r.activity'], result['r.tripline_id']
         if route_day < last_route_day:  # and route_activity == 1:
             if route_day == 1:
@@ -20,7 +20,7 @@ def get_route_string(results):
             elif route_day == 2:
                 out += '\nroute%s:\nday1:%s\nday2:%s' % (str(route_id), begin_node, end_node)
             else:
-                print 'error:begin_route_day>2!!!!'
+                print('error:begin_route_day>2!!!!')
         elif route_day > last_route_day:
             out += '\nday%s:%s' % (str(route_day), end_node)
         else:
@@ -145,4 +145,4 @@ if __name__ == '__main__':
     # out_string = find_route_for_scenic(g, '三亚凤凰机场附近')
     # out_string = find_top_scenic_spot(g)
     # out_string = find_route_for_num(g, 5)
-    print out_string
+    print(out_string)

@@ -8,6 +8,6 @@ class UserInfo:
 
 if __name__ == '__main__':
     userinfo = UserInfo()
-    print userinfo.ip
-    print userinfo.user
-    print userinfo.password
+    print(userinfo.ip)
+    print(userinfo.user)
+    print(userinfo.password)

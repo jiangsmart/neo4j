@@ -23,13 +23,13 @@ for in_content in in_file:
         #     pois_lastday = len(day_traj)
         for poi_of_day, poi in enumerate(day_traj):
             if poi_of_day == 0 and day_of_trip == 0:
-                last_name = poi['name'].encode('utf-8')
+                last_name = poi['name']
                 continue
                 # if pois_lastday:
                 # 非最后一天的处理
             visit = dict()
             visit['name1'] = last_name
-            visit['name2'] = poi['name'].encode('utf-8')
+            visit['name2'] = poi['name']
             visit['day'] = day_of_trip + 1
             visit['activity'] = poi_of_day
             traj.append(visit)

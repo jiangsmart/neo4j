@@ -18,18 +18,18 @@ class st():
         in_file = open(path, 'r')
         for line in in_file:
             fields = line.strip().split()
-            poi_name = fields[0].decode('utf8')
-            nick_names = [a.decode('utf8') for a in fields[1:]]
+            poi_name = fields[0]
+            nick_names = [a for a in fields[1:]]
             self.poi_list.append(poi_name)
             self.poi_string = '|'.join(self.poi_list)
             if nick_names:
                 self.nick_name[poi_name] = '|'.join(nick_names)
 
     def standardlize(self, content):
-        content = content.decode('utf8')
+        content = content
 
         # 去除标点符号
-        content = re.sub("[\s+\.\!\/_,$%^*():+\"\']+|[+——！，。？?、~@#￥%……&*（）：；【】〔〕“”《》]+".decode('utf8'),
+        content = re.sub("[\s+\.\!\/_,$%^*():+\"\']+|[+——！，。？?、~@#￥%……&*（）：；【】〔〕“”《》]+",
                          u"", content)
 
         # 数字标准化
@@ -47,15 +47,15 @@ class st():
         # 去除首尾空格
         content = content.strip()
 
-        content = content.encode('utf8')
+        # content = content.encode('utf8')
 
-        print 'finish standard'
+        print('finish standard')
         return content
 
 
 if __name__ == '__main__':
     s = st()
     # print s.standardlize('玩七天')
-    print s.standardlize('我想暑假去凤凰机场玩五天')
-    print s.poi_list
+    print(s.standardlize('我想暑假去凤凰机场玩五天'))
+    print(s.poi_list)
     # print st.poi_list

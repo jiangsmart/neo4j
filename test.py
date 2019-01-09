@@ -10,14 +10,14 @@ def out_test():
     graph = Graph(userinfo.ip, username=userinfo.user, password=userinfo.password)
     for i in range(0, 76):
         try:
-            print n.find_route_for_num(graph)
+            print(n.find_route_for_num(graph))
         except:
-            print '\n!!!!!!!!!!!\n!!!error!!!\n!!!!!!!!!!!\n' + str(i)
+            print('\n!!!!!!!!!!!\n!!!error!!!\n!!!!!!!!!!!\n' + str(i))
 
 
 content = '泰国3333新加坡印度尼西亚'
-result = re.search('(泰国|新加坡)(\d*)'.decode('utf8'), content.decode('utf8'))
+result = re.search('(泰国|新加坡)(\d*)', content)
 # content = re.sub('我想', 'hahahahaah',content)
-print result.group(0)
-print result.group(1)
-print result.group(2)
+print(result.group(0))
+print(result.group(1))
+print(result.group(2))
