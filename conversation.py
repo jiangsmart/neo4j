@@ -57,8 +57,8 @@ class Graph2Lookup:
         dur = re.search(u'[^第](\d*)天', in_string)
         des = re.search(u'(三亚|海口)', in_string)
         season = re.search(u'(8月|12月)', in_string)
-        if dur or des or season:
-            if not dur:
+        if dur.group(1) or des or season:
+            if not dur.group(1):
                 dur_in = '*'
             elif 3 <= int(dur.group(1)) <= 8:
                 dur_in = dur.group(1)
@@ -82,7 +82,7 @@ class Graph2Lookup:
                 season_in = 'winter'
             else:
                 raise ValueError('season.group():%s' % season.group())
-            print(dur_in + des_in + season_in)
+            print(dur_in + '\t' + des_in + '\t' + season_in)
             out = n.find_route_for_des_season_dur(self.graph, des_in, season_in, dur_in)
             # if out == '':
             #     out = '对不起，您查询的不存在'
@@ -95,7 +95,7 @@ class Graph2Lookup:
 if __name__ == '__main__':
     # in_string = '查询第10条旅游线路'
     # in_string = '最受欢迎的景区是什么？'
-    # in_string = '我想去三亚玩5天'
+    in_string = '我想去三亚玩第2天'
     userinfo = UserInfo()
     g = Graph2Lookup(userinfo.ip, userinfo.user, userinfo.password)
     out = g.match_in_string(in_string)

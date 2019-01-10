@@ -15,8 +15,9 @@ def out_test():
             print('\n!!!!!!!!!!!\n!!!error!!!\n!!!!!!!!!!!\n' + str(i))
 
 
-content = '泰国3333新加坡印度尼西亚'
-result = re.search('(泰国|新加坡)(\d*)', content)
+content = '我想去三亚第2天'
+# content = '泰国3333新加坡印度尼西亚'
+result = re.search('[^第](\d*)天', content)
 # content = re.sub('我想', 'hahahahaah',content)
 print(result.group(0))
 print(result.group(1))

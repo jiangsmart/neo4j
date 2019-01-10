@@ -6,14 +6,19 @@ from py2neo import Graph, Node, Relationship  # NodeSelector
 from userInfo import UserInfo
 
 
-def get_route_string(results):
+def get_route_string(results, num_limit):
     out = ''
     last_route_day = 3
+    id_set = set()
     # get results
     for result in results:
         begin_node = result['a.name']
         end_node = result['b.name']
         route_day, route_activity, route_id = result['r.day'], result['r.activity'], result['r.tripline_id']
+        if route_id not in id_set:
+            id_set.add(route_id)
+        if len(id_set) > num_limit:
+            return out.strip()
         if route_day < last_route_day:  # and route_activity == 1:
             if route_day == 1:
                 out += '\nroute%s:\nday1:%s-->%s' % (str(route_id), begin_node, end_node)
@@ -37,7 +42,7 @@ def get_poi_string(results):
 
 
 # 目的地为某地，季节为某季节，持续时间为几天
-def find_route_for_des_season_dur(graph, des, season, dur):
+def find_route_for_des_season_dur(graph, des, season, dur, num_limit=3):
     pattern = "MATCH (a)-[r:Route]->(b) " \
               "WHERE r.des=%s AND r.season=%s AND r.dur=%s " \
               "RETURN a.name,b.name,r.day,r.activity,r.tripline_id " \
@@ -64,12 +69,12 @@ def find_route_for_des_season_dur(graph, des, season, dur):
 
     cypher = pattern % (des_in, season_in, dur_in)
     results = graph.run(cypher).data()
-    out = get_route_string(results)
+    out = get_route_string(results, num_limit)
     return out
 
 
 # 经过某景区的路线
-def find_route_for_scenic(graph, scenic):
+def find_route_for_scenic(graph, scenic, num_limit=3):
     pattern = "MATCH (n)-[r1:Route]->(m) " \
               "WHERE m.name='%s' OR n.name='%s' " \
               "WITH DISTINCT r1.tripline_id AS rid " \
@@ -78,12 +83,12 @@ def find_route_for_scenic(graph, scenic):
               "ORDER BY r.tripline_id,r.day,r.activity"
     cypher = pattern % (scenic, scenic)
     results = graph.run(cypher).data()
-    out = get_route_string(results)
+    out = get_route_string(results, num_limit)
     return out
 
 
 # 经过某景区且玩几天的路线
-def find_route_for_scenic_dur(graph, scenic, dur):
+def find_route_for_scenic_dur(graph, scenic, dur, num_limit=3):
     pattern = "MATCH (n)-[r1:Route]->(m) " \
               "WHERE r1.dur='%s' AND (m.name='%s' OR n.name='%s') " \
               "WITH DISTINCT r1.tripline_id AS rid " \
@@ -93,12 +98,12 @@ def find_route_for_scenic_dur(graph, scenic, dur):
     dur = str(dur)
     cypher = pattern % (dur, scenic, scenic)
     results = graph.run(cypher).data()
-    out = get_route_string(results)
+    out = get_route_string(results, num_limit)
     return out
 
 
 # 第几天经过某景区的路线
-def find_route_for_scenic_day(graph, scenic, day):
+def find_route_for_scenic_day(graph, scenic, day, num_limit=3):
     pattern = "MATCH (n)-[r1:Route]->(m) " \
               "WHERE r1.day=%s AND (m.name='%s' OR n.name='%s') " \
               "WITH DISTINCT r1.tripline_id AS rid " \
@@ -110,16 +115,17 @@ def find_route_for_scenic_day(graph, scenic, day):
     day = str(day)
     cypher = pattern % (day, scenic, scenic)
     results = graph.run(cypher).data()
-    out = get_route_string(results)
+    out = get_route_string(results, num_limit)
     return out
 
 
 # 最热门的景点
-def find_top_scenic_spot(graph):
-    cypher = 'MATCH (poi1)-[r:Route]-(poi2) ' \
-             'WITH poi1, count(r) AS routes ' \
-             'RETURN poi1' \
-             ' ORDER BY routes DESC limit 3'
+def find_top_scenic_spot(graph, num_limit=3):
+    pattern = 'MATCH (poi1)-[r:Route]-(poi2) ' \
+              'WITH poi1, count(r) AS routes ' \
+              'RETURN poi1' \
+              ' ORDER BY routes DESC limit %s'
+    cypher = pattern % str(num_limit)
     results = graph.run(cypher).data()
     out = get_poi_string(results)
     return out
