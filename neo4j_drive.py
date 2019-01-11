@@ -104,8 +104,10 @@ def find_route_for_scenic_dur(graph, scenic, dur, num_limit=3):
 
 # 第几天经过某景区的路线
 def find_route_for_scenic_day(graph, scenic, day, num_limit=3):
+    # 注意解决行程的第一个POI没有route指的问题,分day=1,act=1和day=2,act=0两种情况
     pattern = "MATCH (n)-[r1:Route]->(m) " \
-              "WHERE r1.day=%s AND (m.name='%s' OR n.name='%s') " \
+              "WHERE (r1.day=%s AND m.name='%s') OR " \
+              "(%s=1 AND ((r1.day=1 AND r1.activity=1) OR (r1.day=2 AND r1.activity=0)) AND (n.name='%s' OR m.name='%s')) " \
               "WITH DISTINCT r1.tripline_id AS rid " \
               "MATCH p = (a) - [r:Route{tripline_id: rid}]->(b) " \
               "RETURN a.name,b.name,r.day,r.activity,r.tripline_id " \
@@ -113,7 +115,7 @@ def find_route_for_scenic_day(graph, scenic, day, num_limit=3):
     # p = (a) - [r2:Route{tripline_id: rid}]->(b)
     # (a:POI{name:'大东海'})-[:Route*]->(b)
     day = str(day)
-    cypher = pattern % (day, scenic, scenic)
+    cypher = pattern % (day, scenic, day, scenic, scenic)
     results = graph.run(cypher).data()
     out = get_route_string(results, num_limit)
     return out
@@ -145,9 +147,9 @@ def find_route_for_num(graph, num):
 if __name__ == '__main__':
     userinfo = UserInfo()
     g = Graph(userinfo.ip, username=userinfo.user, password=userinfo.password)
-    out_string = find_route_for_des_season_dur(g, 'sanya', 'summer', '*')
+    # out_string = find_route_for_des_season_dur(g, 'sanya', 'summer', '*')
     # out_string = find_route_for_scenic_dur(g, '三亚凤凰机场附近', 8)
-    # out_string = find_route_for_scenic_day(g, '三亚凤凰机场附近', 1)
+    out_string = find_route_for_scenic_day(g, '三亚凤凰机场附近', 1)
     # out_string = find_route_for_scenic(g, '三亚凤凰机场附近')
     # out_string = find_top_scenic_spot(g)
     # out_string = find_route_for_num(g, 5)

@@ -12,7 +12,7 @@ from userInfo import UserInfo
 """
 
 
-class Graph2Lookup:
+class Graph4Match:
     not_found_string = '对不起，没有符合您条件的信息'
     not_understood_string = '对不起，我不懂您的意思'
     out_dur_range_string = '对不起，游览天数一般在3~8天'
@@ -44,26 +44,50 @@ class Graph2Lookup:
         print('finish 2')
 
         # 查询特定天去特定景点
-        reObject3 = re.search(u'第(\d*)天(游览|去|参观|游玩|观赏|玩)(%s)' % self.s.poi_string, in_string)
-        if reObject3:
-            # out = n.find_route_for_scenic_day(graph, '三亚凤凰机场附近', 2)
-            out = n.find_route_for_scenic_day(self.graph, reObject3.group(3), reObject3.group(1))
+        # reObject3 = re.search(u'(第)(\d*)[天日](游览|去|参观|游玩|观赏|玩)(%s)' % self.s.poi_string, in_string)
+        # if reObject3:
+        #     out = n.find_route_for_scenic_day(self.graph, reObject3.group(4), reObject3.group(2))
+        #     if out == '':
+        #         out = self.not_found_string
+        #     return out
+        # print('finish 3')
+
+        # 查询经过景点
+        day = re.search('第(\d*)(天|日)', in_string)
+        dur = re.search('[^第](\d*)(天|日)', in_string)
+        scenic = re.search('(%s)' % self.s.poi_string, in_string)
+        # season = re.search('(8月|12月)', in_string) 季节暂时不加
+        if scenic:
+            if dur.group(1) and not day:
+                print(1)
+                out = n.find_route_for_scenic_dur(self.graph, scenic.group(1), dur.group(1))
+            elif day and not dur.group(1):
+                print(2)
+                out = n.find_route_for_scenic_day(self.graph, scenic.group(1), day.group(1))
+            else:
+                print(3)
+                out = n.find_route_for_scenic(self.graph, scenic.group(1))
             if out == '':
                 out = self.not_found_string
             return out
         print('finish 3')
 
         # 上述不匹配，按照(季节,游览时间,目的地)匹配
-        dur = re.search(u'[^第](\d*)天', in_string)
-        des = re.search(u'(三亚|海口)', in_string)
-        season = re.search(u'(8月|12月)', in_string)
-        if dur.group(1) or des or season:
-            if not dur.group(1):
-                dur_in = '*'
-            elif 3 <= int(dur.group(1)) <= 8:
-                dur_in = dur.group(1)
+        dur = re.search('[^第](\d*)(天|日)', in_string)
+        des = re.search('(三亚|海口)', in_string)
+        season = re.search('(8月|12月)', in_string)
+        if (dur and dur.group(1)) or des or season:
+            if dur and dur.group(1):
+                if not dur.group(1):
+                    dur_in = '*'
+                elif 3 <= int(dur.group(1)) <= 8:
+                    dur_in = dur.group(1)
+                else:
+                    return self.out_dur_range_string
+            elif dur and not dur.group(1):
+                return self.not_understood_string
             else:
-                return self.out_dur_range_string
+                dur_in = '*'
 
             if not des:
                 des_in = '*'
@@ -95,8 +119,9 @@ class Graph2Lookup:
 if __name__ == '__main__':
     # in_string = '查询第10条旅游线路'
     # in_string = '最受欢迎的景区是什么？'
-    in_string = '我想去三亚玩第2天'
+    in_string = '我想第5天去大东海'
+    # in_string = '哈哈哈哈'
     userinfo = UserInfo()
-    g = Graph2Lookup(userinfo.ip, userinfo.user, userinfo.password)
+    g = Graph4Match(userinfo.ip, userinfo.user, userinfo.password)
     out = g.match_in_string(in_string)
     print(out)
