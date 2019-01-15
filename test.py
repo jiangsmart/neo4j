@@ -3,6 +3,7 @@ import neo4j_drive as n
 import re
 from py2neo import Graph
 from userInfo import UserInfo
+import os
 
 
 def out_test():
@@ -35,4 +36,4 @@ if result2:
     print('2.0\t'+result2.group(0))
     print('2.1\t'+result2.group(1))
     print('2.2\t'+result2.group(2))
-
+print(os.path.dirname(os.path.realpath(__file__)))
