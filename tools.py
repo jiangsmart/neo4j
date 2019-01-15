@@ -1,5 +1,6 @@
 # coding=utf-8
 import re
+import os
 
 
 class st():
@@ -12,7 +13,7 @@ class st():
     jijie = {u'冬天': u'12月', u'冬日': u'12月', u'冬季': u'12月', u'寒假': u'12月', u'夏天': u'8月', u'夏日': u'8月', u'夏季': u'8月',
              u'暑期': u'8月', u'暑假': u'8月'}
 
-    def __init__(self, path='./poi_name.dat'):
+    def __init__(self, path=os.path.dirname(os.path.realpath(__file__))+'/poi_name.dat'):
         self.poi_list = list()
         self.nick_name = dict()
         in_file = open(path, 'r')
