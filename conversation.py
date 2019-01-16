@@ -29,18 +29,14 @@ class Graph4Match:
         reObject1 = re.search('第(\d*)[条号]', in_string)
         if reObject1:
             out = n.find_route_for_num(self.graph, reObject1.group(1))
-            if out == '':
-                out = self.not_found_string
-            return out
+            return out or self.not_found_string
         print('finish 1')
 
         # 查询热门景点
         reObject2 = re.search(r'(热门|欢迎|经典).*景', in_string)
         if reObject2:
             out = n.find_top_scenic_spot(self.graph)
-            if out == '':
-                out = self.not_found_string
-            return out
+            return out or self.not_found_string
         print('finish 2')
 
         # 查询特定天去特定景点
@@ -67,9 +63,7 @@ class Graph4Match:
             else:
                 print(3)
                 out = n.find_route_for_scenic(self.graph, scenic.group(1))
-            if out == '':
-                out = self.not_found_string
-            return out
+            return out or self.not_found_string
         print('finish 3')
 
         # 上述不匹配，按照(季节,游览时间,目的地)匹配
@@ -108,18 +102,16 @@ class Graph4Match:
                 raise ValueError('season.group():%s' % season.group())
             print(dur_in + '\t' + des_in + '\t' + season_in)
             out = n.find_route_for_des_season_dur(self.graph, des_in, season_in, dur_in)
-            # if out == '':
-            #     out = '对不起，您查询的不存在'
             # out = dur.group(1) + des.group() + season.group()
-            return out
+            return out or self.not_found_string
         print('finish 4')
         return self.not_understood_string
 
 
 if __name__ == '__main__':
-    # in_string = '查询第10条旅游线路'
-    # in_string = '最受欢迎的景区是什么？'
-    in_string = '我想第5天去大东海'
+    # in_string = '查询第70条旅游线路'
+    in_string = '最受欢迎的景区是什么？'
+    # in_string = '我想去海口玩8天'
     # in_string = '哈哈哈哈'
     userinfo = UserInfo()
     g = Graph4Match(userinfo.ip, userinfo.user, userinfo.password)
